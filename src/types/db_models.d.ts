@@ -1,5 +1,13 @@
 import { BuildOptions, Model } from 'sequelize'
 
+/*
+ALl of the models live on this file. 
+
+All attributes that we take from this file are designed to match the models going into the db
+THen models are exported from here so we can use them in other testing patterns and use cases.
+
+*/
+
 export interface UserAttributes {
     id: number
     firstName?: string
