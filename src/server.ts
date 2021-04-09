@@ -1,26 +1,26 @@
-import express from "express";
-import { ApolloServer } from "apollo-server-express";
-import depthLimit from "graphql-depth-limit";
-import { createServer } from "http";
-import compression from "compression";
-import cors from "cors";
-import schema from "./schema";
-const app = express();
+import express from 'express'
+import { ApolloServer } from 'apollo-server-express'
 
-const server = new ApolloServer({
-  schema,
-  validationRules: [depthLimit(7)],
-});
+import { typeDefs } from './typeDefs'
+import { resolvers } from './resolvers/resolvers'
+import { dbConfig } from './models'
 
-app.use("*", cors());
-app.use(compression());
+const startServer = async () => {
+    const server = new ApolloServer({ typeDefs, resolvers })
 
-server.applyMiddleware({ app, path: "/graphql" });
+    dbConfig.sync().then(() => {
+        console.log('Connected to DB')
 
-const httpServer = createServer(app);
+        const app = express()
 
-httpServer.listen({ port: 3000 }, (): void =>
-  console.log(
-    `\n🚀      GraphQL is now running on http://localhost:3000/graphql`
-  )
-);
+        server.applyMiddleware({ app })
+
+        app.listen({ port: 3000 }, () =>
+            console.log(
+                `🚀 Server ready at http://localhost:3000${server.graphqlPath}`
+            )
+        )
+    })
+}
+
+startServer()
